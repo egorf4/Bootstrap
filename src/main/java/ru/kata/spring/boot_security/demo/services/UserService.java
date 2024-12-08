@@ -1,79 +1,34 @@
 package ru.kata.spring.boot_security.demo.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.kata.spring.boot_security.demo.entity.Role;
 import ru.kata.spring.boot_security.demo.entity.User;
-import ru.kata.spring.boot_security.demo.repositories.UserRepository;
-
-import javax.transaction.Transactional;
-import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 @Service
-public class UserService implements UserDetailsService {
+public interface UserService extends UserDetailsService {
 
-   private UserRepository userRepository;
+    User findById(Long id);
 
-    @Autowired
-    public void setUserRepository(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    List<User> findAll();
 
-    public User findById(Long id) {
-       return userRepository.findById(id).orElse(null);
-    }
+    void save(User user, Set<Long> roleIds);
 
-    public List<User> findAll() {
-       return userRepository.findAll();
-    }
+    void update(User user, Set<Long> roleIds);
 
-    public void save(User user) {
-        user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
-        userRepository.save(user);
-    }
+    void deleteById(Long id);
 
+    User findByUsername(String email);
 
-    @Transactional
-    public void update(User user) {
-        userRepository.save(user);
-    }
+    UserDetails loadUserByUsername(String email);
 
-    @Transactional
-    public void deleteById(Long id) {
-       userRepository.deleteById(id);
-    }
+    List<Role> findAllRoles();
 
-    public User findByUsername(String email) {
-       return userRepository.findByEmail(email);
-    }
+    List<String> getFormattedRoles(User user);
 
-    @Override
-    @Transactional
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        System.out.println("Authenticating email: " + email);
-        User user = userRepository.findByEmail(email);
-        if (user == null) {
-            throw new UsernameNotFoundException("User not found: " + email);
-        }
-        System.out.println("User found: " + user);
-       return new org.springframework.security.core.userdetails.User(user.getUsername(),
-               user.getPassword(),mapRolesToAuthorities(user.getRoles()));
-    }
+    //String encodePassword(String password);
 
-    private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Role> roles) {
-       return roles.stream().map(r -> new SimpleGrantedAuthority
-               (r.getName())).collect(Collectors.toList());
-    }
-
-    public String encodePassword(String password) {
-    return new BCryptPasswordEncoder().encode(password);
-    }
 }

@@ -1,7 +1,6 @@
 package ru.kata.spring.boot_security.demo.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,7 +12,7 @@ import java.security.Principal;
 
 @Controller
 @RequestMapping("/user")
-public class  UserController {
+public class UserController {
 
     private final UserService userService;
 
@@ -23,7 +22,7 @@ public class  UserController {
     }
 
     @GetMapping
-    public String userPage(Principal principal, Model model) {
+    public String showUser(Principal principal, Model model) {
         User currentUser = userService.findByUsername(principal.getName());
         if (currentUser == null) {
             throw new RuntimeException("Current user is null");
