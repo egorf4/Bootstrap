@@ -28,7 +28,4 @@ public interface UserService extends UserDetailsService {
     List<Role> findAllRoles();
 
     List<String> getFormattedRoles(User user);
-
-    //String encodePassword(String password);
-
 }
